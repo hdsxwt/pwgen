@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.backends._legacy:_Backend"
+
+[project]
+name = "pwgen"
+version = "1.0.0"
+description = "BIP85 deterministic password generator"
+requires-python = ">=3.10"
+dependencies = [
+    "bipsea",
+]
+
+[project.scripts]
+pwgen = "pwgen:main"
