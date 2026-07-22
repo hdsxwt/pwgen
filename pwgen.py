@@ -2,18 +2,19 @@
 """
 BIP85-based deterministic password generator.
 
-Reads a BIP39 mnemonic from D:/password/key as the master seed,
+Reads a BIP39 mnemonic file path from config.json as the master seed,
 then generates unique per-site passwords using BIP85 with base85 or base64.
 """
 
 import argparse
 import hashlib
+import json
 import os
 import sys
 
 from bipsea import bip39, bip32, bip85
 
-MASTER_KEY_FILE = r"D:\password\key"
+CONFIG_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "config.json")
 
 # BIP85 application codes
 ENCODING_CODES = {
@@ -28,13 +29,22 @@ ENCODING_RANGES = {
 }
 
 
-def load_master_key():
-    """Read mnemonic from MASTER_KEY_FILE and return a BIP32 master key."""
-    if not os.path.exists(MASTER_KEY_FILE):
-        print(f"Error: Master key file not found: {MASTER_KEY_FILE}", file=sys.stderr)
+def load_config():
+    """Read key_file path from CONFIG_FILE."""
+    if not os.path.exists(CONFIG_FILE):
+        print(f"Error: Config file not found: {CONFIG_FILE}", file=sys.stderr)
+        sys.exit(1)
+    with open(CONFIG_FILE, encoding="utf-8") as f:
+        return json.load(f)
+
+
+def load_master_key(key_file):
+    """Read mnemonic from *key_file* and return a BIP32 master key."""
+    if not os.path.exists(key_file):
+        print(f"Error: Master key file not found: {key_file}", file=sys.stderr)
         sys.exit(1)
 
-    with open(MASTER_KEY_FILE, encoding="utf-16") as f:
+    with open(key_file, encoding="utf-16") as f:
         content = f.read().strip()
 
     words = content.split()
@@ -109,7 +119,8 @@ def main():
         truncate_to = None
         length = args.length
 
-    master_key = load_master_key()
+    config = load_config()
+    master_key = load_master_key(config["key_file"])
     password = generate_password(master_key, args.site, length, args.encoding)
     if truncate_to is not None:
         password = password[:truncate_to]
