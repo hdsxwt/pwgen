@@ -96,13 +96,7 @@ def main():
 
     # Validate length against encoding range
     lo, hi = ENCODING_RANGES[args.encoding]
-    truncate_to = None
     if args.length < lo:
-        print(
-            f"Note: Minimum {args.encoding} length is {lo}, "
-            f"generating {lo} chars and trimming to {args.length}",
-            file=sys.stderr,
-        )
         truncate_to = args.length
         length = lo
     elif args.length > hi:
@@ -112,6 +106,7 @@ def main():
         )
         sys.exit(1)
     else:
+        truncate_to = None
         length = args.length
 
     master_key = load_master_key()
